@@ -10,13 +10,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Debug endpoint — visit this to check if key is loaded
 app.get('/debug', (req, res) => {
   const key = process.env.OPENROUTER_KEY;
   res.json({
     keySet: !!key,
-    keyPrefix: key ? key.substring(0, 8) + '...' : 'NOT SET',
-    allEnvKeys: Object.keys(process.env).filter(k => k.includes('KEY') || k.includes('TOKEN'))
+    keyPrefix: key ? key.substring(0, 8) + '...' : 'NOT SET'
   });
 });
 
@@ -34,7 +32,7 @@ app.post('/generate', async (req, res) => {
         'X-Title': 'StudySnap'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'google/gemini-2.5-flash:free',
         max_tokens: req.body.max_tokens || 4000,
         messages: req.body.messages
       })
