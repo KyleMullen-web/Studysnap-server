@@ -1,58 +1,45 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
- 
-// Allow requests from any origin (since you're opening the HTML file directly)
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type']
-}));
- 
-// Handle preflight requests
+
+app.use(cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'], allowedHeaders: ['Content-Type'] }));
 app.options('*', cors());
- 
-// Increase limit for base64 images
 app.use(express.json({ limit: '50mb' }));
- 
-// Health check endpoint
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
- 
-// Main AI endpoint
+
 app.post('/generate', async (req, res) => {
   try {
-    const apiKey = process.env.ANTHROPIC_KEY;
- 
-    if (!apiKey) {
-      return res.status(500).json({ error: { message: 'ANTHROPIC_KEY environment variable not set on server.' } });
-    }
- 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const apiKey = process.env.OPENROUTER_KEY;
+    if (!apiKey) return res.status(500).json({ error: { message: 'OPENROUTER_KEY not set.' } });
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://studysnap.netlify.app',
+        'X-Title': 'StudySnap'
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify({
+        model: 'google/gemini-2.0-flash-exp:free',
+        max_tokens: req.body.max_tokens || 4000,
+        messages: req.body.messages
+      })
     });
- 
+
     const data = await response.json();
- 
-    if (!response.ok) {
-      return res.status(response.status).json(data);
-    }
- 
-    res.json(data);
- 
+    if (!response.ok) return res.status(response.status).json(data);
+
+    res.json({
+      content: [{ type: 'text', text: data.choices?.[0]?.message?.content || '' }]
+    });
+
   } catch (err) {
-    console.error('Server error:', err);
     res.status(500).json({ error: { message: 'Server error: ' + err.message } });
   }
 });
- 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`StudySnap server running on port ${PORT}`));
- 
+
+app.listen(process.env.PORT || 3000, () => console.log('StudySnap server running on port 3000'));
