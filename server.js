@@ -6,6 +6,10 @@ app.use(cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'], allowedHeaders:
 app.options('*', cors());
 app.use(express.json({ limit: '50mb' }));
 
+app.get('/', (req, res) => {
+  res.json({ status: 'StudySnap server is running!' });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
@@ -50,4 +54,4 @@ app.post('/generate', async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 3000, () => console.log('StudySnap server running on port 3000'));
+app.listen(process.env.PORT || 3000, () => console.log(`StudySnap server running on port ${process.env.PORT || 3000}`));
