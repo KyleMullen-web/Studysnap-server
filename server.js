@@ -32,7 +32,7 @@ app.post('/generate', async (req, res) => {
         'X-Title': 'StudySnap'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash:free',
+        model: 'openrouter/free',
         max_tokens: req.body.max_tokens || 4000,
         messages: req.body.messages
       })
