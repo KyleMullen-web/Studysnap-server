@@ -10,6 +10,16 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// Debug endpoint — visit this to check if key is loaded
+app.get('/debug', (req, res) => {
+  const key = process.env.OPENROUTER_KEY;
+  res.json({
+    keySet: !!key,
+    keyPrefix: key ? key.substring(0, 8) + '...' : 'NOT SET',
+    allEnvKeys: Object.keys(process.env).filter(k => k.includes('KEY') || k.includes('TOKEN'))
+  });
+});
+
 app.post('/generate', async (req, res) => {
   try {
     const apiKey = process.env.OPENROUTER_KEY;
